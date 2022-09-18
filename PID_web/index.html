@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=devise-width, initial-scale=1.0">
+        <title>Final Project</title>
+        <link rel="stylesheet" href="style-finalx.css">
+       
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+        <script src="final_term.js"></script>
+
+    </head>
+    <body>
+        <input type="checkbox" id="check">
+
+        <header class="center_area" for="check" >
+                PID Controller
+           
+        </header>
+
+        <div class="sidebar">
+            <div>
+                <label for="check">
+                    <i class="fas fa-bars" id="sidebar_btn"></i>
+                </label>
+            </div>
+            <div class="profile-info">
+                <img src="images.jpeg" class="profile_image" alt="">
+                <h4>Try hard</h4>
+            </div>
+                <i >
+                    <a href="index.html" >
+                        <i class="fas fa-users"></i>
+                        <span>Member</span>
+                    </a>
+                </i>
+                <i class="active_adjust">
+                    <a onclick="area_setup()" >
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Setup & Respond</span>
+                    </a>
+                </i>
+                <i class="active_chart">
+                    <a onclick="area_chart()" >
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Chart</span>
+                    </a>
+                </i>
+
+        </div>
+        <!---->    
+        <div class="content">
+            <!-- Stats -->
+            <div class="list_member" id="list_member_id">
+                <div class="member_line1">
+                    <h5>Project IoT</h5>
+                    <h1>Mssv<i class="fas fa-users"></i></h1>
+                </div>
+                <div class="member_line">
+                    <img src="phat.jpg" class="image" alt="">
+                    <h5>Đặng Phước Phát</h5>
+                    <h6>19146046</h6>
+                </div>
+                <div class="member_line">
+                    <img src="tien.jpg" class="image" alt="">
+                    <h5>Nguyễn Nhật Tiến</h5>
+                    <h6>19146273</h6>
+                </div>
+                <div class="member_line">
+                    <img src="trung.jpg" class="image" alt="">
+                    <h5>Nguyễn Trí Trung</h5>
+                    <h6>19146289</h6>
+                </div>
+            </div>
+            <!-- form PID speed -->
+            <nav class="form_pid">
+                <form action="#" method="post" id="form1" >
+                    <div>
+                        <h3 class="thong_so" style="padding-bottom: 10px;">Setup PID</h3>
+                    </div>
+                    <form>
+                        <label class="label"> P value:  </label>
+                        <input  id="P_set" class="PID" type="number" name="p_value"  placeholder="Type Kp" >
+                    </form>
+                    <form>
+                        <label class="label">I value :  </label>
+                        <input id="I_set" class="PID" type="number" name="i_value" placeholder="Type Ki" >
+                    </form>
+                    <form>
+                        <label class="label">D value:  </label>
+                        <input class="PID" id="D_set"  type="number" name="d_value" placeholder="Type Kd">
+                    </form>
+                    <form action="#" method="post" >
+                        
+                        <div class="selector">
+                            <br><label class="label"style="padding-bottom: 25px;">Setpoint:  </label>
+                            <textarea readonly wrap="hard" id="notice" rows="1" cols="16" placeholder="(-160 to 160)RPM"></textarea><br>
+                            <input type="range" class="speed_class" min="-160" max="160" name="speed_name" id="speed_id" style="margin-right: 30px;" oninput="slider()">
+                            <textarea type="PID" rows="1" cols="3" name="speed_value" id="selectValue" readonly wrap="hard" >0</textarea>
+                        </div>
+                    </form>
+                    <form>
+                        <br>
+                        <input type="button" class="button_s" onclick="publish_client_start();" value="Set">
+                        <button class="button_t" type="button" onclick="publish_client_reset();">Reset form</button>
+                        <button class="button_s" type="button" onclick="publish_client_stop();">Stop</button>
+                    </form>
+                </form>
+            </nav>
+            <nav id="text_output">
+                <form action="" id="form2">
+                    <div>
+                        <h3 class="thong_so"> Motor Parameters</h3>    
+                    </div>
+                    <div class="left_area">
+                        <label class="label_1" style="padding-left:150px;">Kp  </label><br>
+                        <textarea readonly wrap="hard" id="Kp" rows="1" cols="10" name="pv" class="center_output" ></textarea><br>
+                        <label class="label_1" style="padding-left:150px;">Ki  </label><br>
+                        <textarea readonly wrap="hard" id="Ki" rows="1" cols="10" name="iv" class="center_output"></textarea><br>
+                        <label class="label_1" style="padding-left:150px;">Kd  </label><br>
+                        <textarea readonly wrap="hard" id="Kd" rows="1" cols="10"name="dv" class="center_output"></textarea><br>
+                    </div>
+                    <div class="right_area">
+                        <label class="label" style="padding-left:35px;">Set point</label><br>
+                        <textarea readonly wrap="hard" id="output_set_point" rows="1" cols="10" name="sp" class="center_output"></textarea><br>
+                        <label class="label" style="padding-left:35px;">Velocity</label><br>
+                        <textarea readonly wrap="hard" id="output_speed" rows="1" cols="10" name = "vel" class="center_output"></textarea><br>
+                        <label class="label" style="padding-left:45px;">PWM</label><br>
+                        <textarea readonly wrap="hard" id="PWM" rows="1" cols="10" name = "pwm"  class="center_output"></textarea><br>
+                    </div>
+                </form>
+            </nav>
+            <!-- Simple-chart -->
+            <div class="bieu_do" >
+                <h4 class="graph" for="check" >Velocity Graph</h4>
+                <div class="wrapper border border-3 rounded border-primary">
+                    <canvas id="myChart" width="800" height="350" style="border:5px solid #001ff0; border-radius: 20px;
+                    background-color: #fff; margin-left: 85px;" ></canvas>
+                </div>
+            </div> 
+
+        </div>   
+
+        <!-- Graph -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"> </script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script>
+        var label = [];
+        var a = [];
+        var b = [];
+        const chartdata = {
+        labels: label,
+            datasets: [{
+                label: 'Response',
+                fill: false,
+                lineTension: 0,
+                //backgroundColor: 'rgb(255,0,0)',    //color inside
+                borderColor: 'rgb(255,0,0)',        //color outside
+                borderWidth: 3,
+                data: a,
+                pointStyle: 'star',
+                pointRadius: 0,
+            },
+            {
+                label: 'Set point',
+                fill: false,
+                lineTension: 0,
+                //backgroundColor: 'rgb(255,0,0)',    //color inside
+                borderColor: 'rgb(0,255,0)',        //color outside
+                borderWidth: 1.5,
+                data: b,
+                pointStyle: 'star',
+                pointRadius: 0,
+            }
+        ]
+        };
+        const config = {
+            type: 'line',
+            data: chartdata,
+            options: {
+                animation:false,
+                scales: {
+                    yAxes: [{ticks: {min: -180, max:180}}],
+                    },
+                    legend: {
+                labels: {
+                    fontColor: "black",
+                    fontSize: 20
+                }
+            }          
+            }
+        };
+        var myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+        //load data tu database
+        $(document).ready(function(){
+            updateChart();
+         });
+        setInterval(updateChart,100);
+        function updateChart(){
+            // gui request xuong database de lay data
+            $.post('readData.php',function(data){
+                var label = [];
+                var a = [];
+                var b = [];
+                for(var i in data){
+                    label.push(data[i].stt);
+                    a.push(data[i].Vel);//gia tri cua databases
+                    //step=data[i].step;
+                    b.push(data[i].Setpoint);
+                }
+                  
+                myChart.data.labels = label;
+                myChart.data.datasets[0].data = a;
+                myChart.data.datasets[1].data = b;
+                myChart.update();
+            })
+        }
+    </script>
+    <!--// Graph -->
+    <!-- go to -->
+
+    <script>
+        function area_member(){
+            const element=document.getElementsById("list_member_id");
+            element.scrollIntoView({behavior:'smooth', block: 'center'})
+        }
+        function area_setup(){
+            const element=document.getElementById("form1");
+            element.scrollIntoView({behavior:'smooth', block: 'center'})
+        }
+        function area_res(){
+            const element=document.getElementById("form2");
+            element.scrollIntoView({behavior:'smooth', block: 'center'})
+        }
+        function area_chart(){
+            const element=document.getElementById("myChart");
+            element.scrollIntoView({behavior:'smooth', block: 'center'})
+        }
+
+        var P_data = document.getElementById("P_set").value;
+        document.getElementById("Kd").innerHTML=P_data;
+    </script>
+    <!--// go to -->
+    <script>
+
+    
+        function slider(){
+            var slider =document.getElementById("speed_id");
+            var selectValue= document.getElementById("selectValue");
+            selectValue.value=slider.value;
+
+        // slider.oninput=function(){
+        //     selectValue.innerHTML=slider.value;
+        //     console.log(selectValue.innerHTML);
+        // }
+        }
+    </script>
+    </body>
+</html>
